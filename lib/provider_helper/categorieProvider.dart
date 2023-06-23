@@ -5,66 +5,40 @@ import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:http/http.dart' as http;
 import 'package:wallpaper_hub1/utils/string.dart';
 
-class CategoriesProvider extends ChangeNotifier{
+class CategoriesProvider extends ChangeNotifier {
   List<WallpaperModel> _wallpaperList = [];
-  int _page=1;
-  final int _limit=20;
-  bool _isFirstLoadRunning=false;
-  bool _isLoadMoreRunning=false;
-  bool _hasNextPage=true;
-  ScrollController _controller=ScrollController();
+  int _page = 1;
+  final int _limit = 16;
+  bool _isLoading = false;
+  ScrollController _scrollController=ScrollController();
 
   List<WallpaperModel> get wallpaperList => _wallpaperList;
+
   int get page => _page;
+
   int get limit => _limit;
-  bool get isFirstLoadRunning => _isFirstLoadRunning;
-  bool get isLoadMoreRunning => _isLoadMoreRunning;
-  bool get hasNextPage => _hasNextPage;
-  ScrollController get controller => _controller;
 
-    void loadMore(String query) async{
-    if(_hasNextPage == true && _isFirstLoadRunning ==false && _isLoadMoreRunning==false){
+  bool get isLoading => _isLoading;
 
-        _isLoadMoreRunning = true;
-        notifyListeners();
+  ScrollController get scrollController=> _scrollController;
 
-
-      _page +=1;
-
-      try{
-        var response = await http.get(Uri.parse("https://api.pexels.com/v1/search?query=$query&per_page=$_limit&page=$_page"),
-            headers: {
-              "Authorization":AppString.apikey,
-            });
-
-        print("Data :- ${response.body.toString()}");
-
-        Map<String,dynamic> jsonData=jsonDecode(response.body);
-        jsonData["photos"].forEach((element){
-
-          WallpaperModel wallpaperModel = WallpaperModel.fromJson(element);
-          wallpaperList.add(wallpaperModel);
-
-          notifyListeners();
-        });
-
-      }catch(error){
-        if(kDebugMode){
-          print("Something went wrong");
-        }
-      }
-
-
-        _isLoadMoreRunning=false;
-
-      notifyListeners();
-
-    }
+  void setIsLoading(bool isValue){
+    _isLoading = isValue;
+    notifyListeners();
   }
 
-   firstLoad(String query)async{
-      _isFirstLoadRunning = true;
-      notifyListeners();
+  void scrollUp(){
+    final double start=0;
+
+    _scrollController.animateTo(start, duration: const Duration(seconds: 1), curve: Curves.easeIn);
+  }
+
+  Future loadData(BuildContext context,String query)async{
+    await Future.delayed(const Duration(seconds: 2));
+
+    print("Load More Data ...........");
+    _page +=1;
+
     try{
       var response = await http.get(Uri.parse("https://api.pexels.com/v1/search?query=$query&per_page=$_limit&page=$_page"),
           headers: {
@@ -77,37 +51,39 @@ class CategoriesProvider extends ChangeNotifier{
       jsonData["photos"].forEach((element){
 
         WallpaperModel wallpaperModel = WallpaperModel.fromJson(element);
-        wallpaperList.add(wallpaperModel);
+        _wallpaperList.add(wallpaperModel);
+
+        _isLoading=false;
+
 
         notifyListeners();
+
+
       });
+
     }catch(error){
       if(kDebugMode){
         print("Something went wrong");
       }
     }
 
-
-      _isFirstLoadRunning=false;
-
-    notifyListeners();
   }
-
 
   getCategoriesWallpapers(String query) async {
     _wallpaperList.clear();
-    var response = await http.get(Uri.parse("https://api.pexels.com/v1/search?query=$query&per_page=50&page=1"),
+    var response = await http.get(
+        Uri.parse(
+            "https://api.pexels.com/v1/search?query=$query&per_page=$_limit&page=$_page"),
         headers: {
-          "Authorization":AppString.apikey,
+          "Authorization": AppString.apikey,
         });
 
-    Map<String,dynamic> jsonData=jsonDecode(response.body);
+    Map<String, dynamic> jsonData = jsonDecode(response.body);
 
-    jsonData["photos"].forEach((element){
+    jsonData["photos"].forEach((element) {
       WallpaperModel wallpaperModel = WallpaperModel.fromJson(element);
       _wallpaperList.add(wallpaperModel);
       notifyListeners();
     });
   }
-
 }

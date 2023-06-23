@@ -1,23 +1,18 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
+import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/utils/string.dart';
 
-class SearchProvider extends ChangeNotifier{
+class HomeProvider extends ChangeNotifier{
   List<WallpaperModel> _wallpaperList = [];
-  TextEditingController _searchController=TextEditingController();
   int _page = 1;
   final int _limit = 16;
   bool _isLoading = false;
   ScrollController _scrollController=ScrollController();
 
-
   List<WallpaperModel> get wallpaperList => _wallpaperList;
-
-  TextEditingController get searchController => _searchController;
 
   int get page => _page;
 
@@ -25,7 +20,7 @@ class SearchProvider extends ChangeNotifier{
 
   bool get isLoading => _isLoading;
 
-  ScrollController get scrollController=>_scrollController;
+  ScrollController get scrollController => _scrollController;
 
   void setIsLoading(bool isValue){
     _isLoading = isValue;
@@ -38,14 +33,14 @@ class SearchProvider extends ChangeNotifier{
   }
 
 
-  Future loadData(BuildContext context,String query)async{
+  Future loadData(BuildContext context)async{
     await Future.delayed(const Duration(seconds: 2));
 
     print("Load More Data ...........");
     _page +=1;
 
     try{
-      var response = await http.get(Uri.parse("https://api.pexels.com/v1/search?query=$query&per_page=$_limit&page=$_page"),
+      var response = await http.get(Uri.parse("https://api.pexels.com/v1/curated?per_page=$_limit&page=$_page"),
           headers: {
             "Authorization":AppString.apikey,
           });
@@ -74,18 +69,18 @@ class SearchProvider extends ChangeNotifier{
 
   }
 
-
-
-  getSearchWallpapers(String query) async {
+  getCategoriesWallpapers() async {
     _wallpaperList.clear();
-    var response = await http.get(Uri.parse("https://api.pexels.com/v1/search?query=$query&per_page=$_limit&page=$_page"),
+    var response = await http.get(
+        Uri.parse(
+            "https://api.pexels.com/v1/curated?per_page=$_limit&page=$_page"),
         headers: {
-          "Authorization":AppString.apikey,
+          "Authorization": AppString.apikey,
         });
 
-    Map<String,dynamic> jsonData=jsonDecode(response.body);
+    Map<String, dynamic> jsonData = jsonDecode(response.body);
 
-    jsonData["photos"].forEach((element){
+    jsonData["photos"].forEach((element) {
       WallpaperModel wallpaperModel = WallpaperModel.fromJson(element);
       _wallpaperList.add(wallpaperModel);
       notifyListeners();

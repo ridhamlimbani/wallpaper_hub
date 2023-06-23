@@ -8,24 +8,27 @@ import 'package:wallpaper_hub1/utils/colors.dart';
 import 'package:wallpaper_hub1/view/imageView.dart';
 
 Widget brandName() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: const [
-      Text(
-        "Wallpaper",
-        style: TextStyle(
-            color: AppColor.black,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Fontmirror"),
-      ),
-      Text(
-        "Hub",
-        style: TextStyle(
-            color: AppColor.purple,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Fontmirror"),
-      ),
-    ],
+  return RichText(
+    text: const TextSpan(
+      children: [
+        TextSpan(
+          text:"Wallpaper",
+          style: TextStyle(
+              color: AppColor.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontFamily: "Fontmirror"),
+        ),
+        TextSpan(
+          text:"Hub",
+          style: TextStyle(
+              color: AppColor.purple,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontFamily: "Fontmirror"),
+        ),
+      ],
+    ),
   );
 }
 
@@ -44,13 +47,13 @@ Widget wallpaperShimmer() {
   );
 }
 
-Widget wallpapersList(List<WallpaperModel> wallpapers, context,ScrollController scrollController) {
+Widget wallpapersList(List<WallpaperModel> wallpapers, context,ScrollController controller) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 16),
     child: GridView.builder(
-      controller: scrollController,
       physics: const ClampingScrollPhysics(),
-      itemCount: wallpapers.length +1,
+      controller: controller,
+      itemCount: wallpapers.length,
       shrinkWrap: true,
       gridDelegate:const  SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -65,7 +68,7 @@ Widget wallpapersList(List<WallpaperModel> wallpapers, context,ScrollController 
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ImageView(imgUrl: wallpapers[index].src.portrait),
+                  builder: (context) => imageView(wallpaperModel: wallpapers[index],),
                 ),
               );
             },

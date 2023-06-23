@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:wallpaper_hub1/Model/categoeries_Model.dart';
 import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/data/data.dart';
 import 'package:wallpaper_hub1/provider_helper/categorieProvider.dart';
+import 'package:wallpaper_hub1/provider_helper/home_provider.dart';
 import 'package:wallpaper_hub1/provider_helper/search_provider.dart';
 import 'package:wallpaper_hub1/utils/colors.dart';
+import 'package:wallpaper_hub1/utils/images.dart';
 import 'package:wallpaper_hub1/utils/string.dart';
 import 'package:wallpaper_hub1/view/categories.dart';
 import 'package:wallpaper_hub1/view/search.dart';
@@ -22,186 +26,166 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  TextEditingController searchController=TextEditingController();
-  List<CategoriesModel> categories=[];
+  TextEditingController searchController = TextEditingController();
+  List<CategoriesModel> categories = [];
   List<WallpaperModel> wallpaperList = [];
+  var homeGetData;
+  bool isFabVisible = true;
 
-  int _page=1;
-  final int _limit=20;
-  bool _isFirstLoadRunning=false;
-  bool _isLoadMoreRunning=false;
-  bool _hasNextPage=true;
-
-  void _loadMore() async{
-    if(_hasNextPage == true && _isFirstLoadRunning ==false && _isLoadMoreRunning==false){
-      setState(() {
-        _isLoadMoreRunning = true;
-      });
-
-      _page +=1;
-
-      try{
-        var response = await http.get(Uri.parse("https://api.pexels.com/v1/curated?per_page=$_limit&page=$_page"),
-            headers: {
-              "Authorization":AppString.apikey,
-            });
-
-        print("Data :- ${response.body.toString()}");
-
-        Map<String,dynamic> jsonData=jsonDecode(response.body);
-        jsonData["photos"].forEach((element){
-
-          WallpaperModel wallpaperModel = WallpaperModel.fromJson(element);
-          wallpaperList.add(wallpaperModel);
-
-          setState(() {});
-        });
-
-      }catch(error){
-        if(kDebugMode){
-          print("Something went wrong");
-        }
-      }
-
-
-      setState(() {
-        _isLoadMoreRunning=false;
-      });
-
-    }
+  loadData() {
+    homeGetData = Provider.of<HomeProvider>(context, listen: false);
+    homeGetData.getCategoriesWallpapers();
   }
-
-  void _firstLoad()async{
-    setState(() {
-      _isFirstLoadRunning = true;
-    });
-
-    try{
-      var response = await http.get(Uri.parse("https://api.pexels.com/v1/curated?per_page=$_limit&page=$_page"),
-          headers: {
-            "Authorization":AppString.apikey,
-          });
-
-      print("Data :- ${response.body.toString()}");
-
-      Map<String,dynamic> jsonData=jsonDecode(response.body);
-      jsonData["photos"].forEach((element){
-
-        WallpaperModel wallpaperModel = WallpaperModel.fromJson(element);
-        wallpaperList.add(wallpaperModel);
-
-        setState(() {});
-      });
-    }catch(error){
-      if(kDebugMode){
-        print("Something went wrong");
-      }
-    }
-
-    setState(() {
-      _isFirstLoadRunning=false;
-    });
-  }
-
-  late ScrollController _controller;
 
   @override
   void initState() {
     // TODO: implement initState
-    categories=getCateries();
-    _firstLoad();
-    _controller = ScrollController()..addListener(_loadMore);
+    categories = getCateries();
+    loadData();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       color: AppColor.white,
       child: SafeArea(
         child: Scaffold(
           backgroundColor: Theme.of(context).primaryColor,
           appBar: AppBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            elevation: 0.0,
-            centerTitle: true,
+            backgroundColor: AppColor.white,
             title: brandName(),
+            centerTitle: true,
+            elevation: 0.0,
+            actions: [
+              IconButton(onPressed: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SearchScreen()));
+              }, icon: const Icon(Icons.search,color: AppColor.mainColor,))
+            ],
           ),
-          body: _isFirstLoadRunning?
-          const Center(
-            child: CircularProgressIndicator(),
-          ) :
-          SingleChildScrollView(
-            controller: _controller,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 15,right: 15),
-                  child: Consumer<SearchProvider>(
-                    builder: (context,search,child){
+          body:  Consumer<HomeProvider>(
+            builder: (context,home,child){
+              return Column(
+                children: [
+                 /* Consumer<SearchProvider>(
+                    builder: (context, search, child) {
                       return SizedBox(
                         height: 45,
                         child: TextField(
                           enableSuggestions: true,
                           autocorrect: true,
-                          onSubmitted: (String searchString){
+                          onSubmitted: (String searchString) {
                             search.getSearchWallpapers(searchString);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => SearchScreen(searchTitle: searchString)));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SearchScreen(
+                                        searchTitle: searchString)));
                           },
                           cursorColor: AppColor.mainColor,
-                          style: const TextStyle(fontFamily: "Fontmirror",color: AppColor.mainColor,decorationThickness: 0),
+                          style: const TextStyle(
+                              fontFamily: "Fontmirror",
+                              color: AppColor.mainColor,
+                              decorationThickness: 0),
                           controller: search.searchController,
                           decoration: InputDecoration(
                               hintText: "Search Categories",
-                              hintStyle: const TextStyle(fontFamily: "Fontmirror",color: AppColor.mainColor),
-                              contentPadding: const EdgeInsets.only(left: 20),
-                              suffixIcon: const Icon(Icons.search,color: AppColor.mainColor,),
+                              hintStyle: const TextStyle(
+                                  fontFamily: "Fontmirror",
+                                  color: AppColor.mainColor),
+                              contentPadding:
+                              const EdgeInsets.only(left: 20),
+                              suffixIcon: const Icon(
+                                Icons.search,
+                                color: AppColor.mainColor,
+                              ),
                               filled: true,
-                              fillColor: AppColor.mainColor.withOpacity(0.1),
+                              fillColor:
+                              AppColor.mainColor.withOpacity(0.1),
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30),
-                                  borderSide: const  BorderSide(
-                                      color: AppColor.mainColor
-                                  )
-                              ),
+                                  borderSide: const BorderSide(
+                                      color: AppColor.mainColor)),
                               focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30),
-                                  borderSide: const  BorderSide(
-                                      color: AppColor.mainColor
-                                  )
-                              ),
+                                  borderSide: const BorderSide(
+                                      color: AppColor.mainColor)),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 borderSide: BorderSide.none,
-                              )
-                          ),
+                              )),
                         ),
                       );
                     },
+                  ),*/
+                  SizedBox(
+                    height: 65,
+                    child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        itemCount: categories.length,
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          return CategoriesTile(
+                              imgUrl: categories[index].categoriesImageURL,
+                              title: categories[index].categoriesName);
+                        }),
                   ),
+                  Expanded(
+                    child: NotificationListener<UserScrollNotification>(
+                      onNotification: (scrollInfo) {
+                        if(scrollInfo.direction == ScrollDirection.forward){
+                          setState(() {
+                            isFabVisible=true;
+                          });
+                        }
+                        else if(scrollInfo.direction==ScrollDirection.reverse){
+                          setState(() {
+                            isFabVisible=false;
+                          });
+                        }
+
+                        if (!home.isLoading &&
+                            scrollInfo.metrics.pixels ==
+                                scrollInfo.metrics.maxScrollExtent) {
+                          home.loadData(context);
+                          home.setIsLoading(true);
+                        }
+
+                        return true;
+                      },
+                      child: wallpapersList(home.wallpaperList, context,home.scrollController),
+                    ),
+                  ),
+                  Visibility(
+                    visible: home.isLoading,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        height: MediaQuery.of(context).size.height  * 0.05,
+                        child: Lottie.asset(AppLottie.loading,height: MediaQuery.of(context).size.height  * 0.05,width: 100),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          floatingActionButton: Consumer<HomeProvider>(
+            builder: (context,home,child){
+              return Visibility(
+                visible: isFabVisible,
+                child: FloatingActionButton(
+                  backgroundColor: AppColor.mainColor,
+                  onPressed: home.scrollUp,
+                  child: const Icon(Icons.arrow_upward,color: AppColor.white,),
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                SizedBox(
-                  height: 80,
-                  child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      itemCount: categories.length,
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context,index){
-                        return CategoriesTile(imgUrl: categories[index].categoriesImageURL, title: categories[index].categoriesName);
-                      }),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                wallpapersList(wallpaperList, context,_controller),
-                if(_isLoadMoreRunning == true)
-                  const Padding(padding: EdgeInsets.only(top: 10,bottom: 40),child: Center(child: CircularProgressIndicator(),),)
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -210,32 +194,52 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class CategoriesTile extends StatelessWidget {
+  String imgUrl, title;
 
-  String imgUrl,title;
-  CategoriesTile({Key? key,required this.imgUrl,required this.title}) : super(key: key);
+  CategoriesTile({Key? key, required this.imgUrl, required this.title})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(right: 4),
       child: Consumer<CategoriesProvider>(
-        builder: (context,categories,child){
+        builder: (context, categories, child) {
           return InkWell(
-            onTap: (){
-              categories.firstLoad(title);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CategoriesScreen(categoriesTitle: title,)));
+            onTap: () {
+              categories.getCategoriesWallpapers(title);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CategoriesScreen(
+                            categoriesTitle: title,
+                          )));
             },
             child: Stack(
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.network(imgUrl,height: 50,width: 100,fit: BoxFit.fill,),
+                  child: Image.network(
+                    imgUrl,
+                    height: 50,
+                    width: 100,
+                    fit: BoxFit.fill,
+                  ),
                 ),
                 Container(
-                  decoration: BoxDecoration(color: AppColor.black26,borderRadius: BorderRadius.circular(16)),
-                  height: 50,width: 100,
+                  decoration: BoxDecoration(
+                      color: AppColor.black26,
+                      borderRadius: BorderRadius.circular(16)),
+                  height: 50,
+                  width: 100,
                   alignment: Alignment.center,
-                  child:Text(title,style: const TextStyle(color: AppColor.white,fontFamily: "Fontmirror",fontWeight: FontWeight.bold),) ,
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                        color: AppColor.white,
+                        fontFamily: "Fontmirror",
+                        fontWeight: FontWeight.bold),
+                  ),
                 )
               ],
             ),
@@ -245,4 +249,3 @@ class CategoriesTile extends StatelessWidget {
     );
   }
 }
-
