@@ -1,20 +1,14 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gallery_saver/gallery_saver.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:provider/provider.dart';
 import 'package:wallpaper/wallpaper.dart';
 import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/utils/colors.dart';
-import 'package:wallpaper_hub1/view/images/imageinfo.dart';
+import 'package:wallpaper_hub1/view/Image/imagesDetails/imageinfo.dart';
 import 'package:wallpaper_hub1/widgets/widget.dart';
-import 'package:http/http.dart' as http;
-
-import '../provider_helper/image_Provider.dart';
+import '../../provider_helper/image_Provider.dart';
 
 class imageView extends StatefulWidget {
   final WallpaperModel wallpaperModel;
@@ -92,6 +86,7 @@ class _imageViewState extends State<imageView> with SingleTickerProviderStateMix
                           context: context,
                           builder: (context) => StatefulBuilder(
                                 builder: (BuildContext context, StateSetter setStateSheet){
+
                                   return Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
@@ -240,7 +235,7 @@ class _imageViewState extends State<imageView> with SingleTickerProviderStateMix
                                               barrierDismissible: false,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title: const Text('Wallpaper Set in HomeScreen'),
+                                                  title: const Text('Wallpaper Set in HomeScreen',style: TextStyle(fontSize: 14),),
                                                   content: Row(
                                                     mainAxisSize: MainAxisSize.min,
                                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -296,7 +291,7 @@ class _imageViewState extends State<imageView> with SingleTickerProviderStateMix
                                               barrierDismissible: false,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title: const Text('Wallpaper Set in HomeScreen'),
+                                                  title: const Text('Wallpaper Set in LockScreen',style: TextStyle(fontSize: 14),),
                                                   content: Row(
                                                     mainAxisSize: MainAxisSize.min,
                                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -352,7 +347,7 @@ class _imageViewState extends State<imageView> with SingleTickerProviderStateMix
                                               barrierDismissible: false,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title: const Text('Wallpaper Set in HomeScreen'),
+                                                  title: const Text('Wallpaper Set in Both',style: TextStyle(fontSize: 14),),
                                                   content: Row(
                                                     mainAxisSize: MainAxisSize.min,
                                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -408,7 +403,7 @@ class _imageViewState extends State<imageView> with SingleTickerProviderStateMix
                                               barrierDismissible: false,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title: const Text('Wallpaper Set in HomeScreen'),
+                                                  title: const Text('Wallpaper Set in System',style: TextStyle(fontSize: 14),),
                                                   content: Row(
                                                     mainAxisSize: MainAxisSize.min,
                                                     mainAxisAlignment: MainAxisAlignment.center,

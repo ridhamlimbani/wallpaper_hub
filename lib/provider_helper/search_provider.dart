@@ -7,8 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:wallpaper_hub1/utils/string.dart';
 
 class SearchProvider extends ChangeNotifier{
-  List<WallpaperModel> _wallpaperList = [];
-  TextEditingController _searchController=TextEditingController();
+  final List<WallpaperModel> _wallpaperList = [];
+  final TextEditingController _searchController=TextEditingController();
   int _page = 1;
   final int _limit = 16;
   bool _isLoading = false;

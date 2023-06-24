@@ -44,6 +44,8 @@ dependencies:
   gallery_saver: ^2.3.2
   fluttertoast: ^8.0.8
   wallpaper: ^1.1.0
+  video_player: ^2.6.1
+  animated_text_kit: ^4.2.2
 
 
 dev_dependencies:

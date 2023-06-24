@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/cupertino.dart';
 import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/utils/string.dart';
+import 'package:wallpaper_hub1/view/Image/homeScreen.dart';
+import 'package:wallpaper_hub1/view/Video/videoHomeScreen.dart';
 
 class HomeProvider extends ChangeNotifier{
   List<WallpaperModel> _wallpaperList = [];
@@ -27,9 +29,20 @@ class HomeProvider extends ChangeNotifier{
     notifyListeners();
   }
   void scrollUp(){
-    final double start=0;
+    const double start=0;
 
     _scrollController.animateTo(start, duration: const Duration(seconds: 1), curve: Curves.easeIn);
+  }
+
+  void handleClick(int item,BuildContext context) {
+    switch (item) {
+      case 0:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const HomeScreen()));
+        break;
+      case 1:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const VideoHomeScreen()));
+        break;
+    }
   }
 
 

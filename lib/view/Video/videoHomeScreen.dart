@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:lottie/lottie.dart';
@@ -7,25 +5,25 @@ import 'package:provider/provider.dart';
 import 'package:wallpaper_hub1/Model/categoeries_Model.dart';
 import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/data/data.dart';
+import 'package:wallpaper_hub1/provider_helper/Videoprovider/videoProvider.dart';
 import 'package:wallpaper_hub1/provider_helper/categorieProvider.dart';
 import 'package:wallpaper_hub1/provider_helper/home_provider.dart';
-import 'package:wallpaper_hub1/provider_helper/search_provider.dart';
 import 'package:wallpaper_hub1/utils/colors.dart';
 import 'package:wallpaper_hub1/utils/images.dart';
-import 'package:wallpaper_hub1/utils/string.dart';
-import 'package:wallpaper_hub1/view/categories.dart';
-import 'package:wallpaper_hub1/view/search.dart';
-import 'package:wallpaper_hub1/widgets/widget.dart';
-import 'package:http/http.dart' as http;
+import 'package:wallpaper_hub1/view/Image/categories.dart';
+import 'package:wallpaper_hub1/view/Image/search.dart';
+import 'package:wallpaper_hub1/view/Video/VideoSearchScreen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+import '../../widgets/widget.dart';
+
+class VideoHomeScreen extends StatefulWidget {
+  const VideoHomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<VideoHomeScreen> createState() => _VideoHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _VideoHomeScreenState extends State<VideoHomeScreen> {
   TextEditingController searchController = TextEditingController();
   List<CategoriesModel> categories = [];
   List<WallpaperModel> wallpaperList = [];
@@ -45,33 +43,56 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
-
-    return Container(
-      color: AppColor.white,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Theme.of(context).primaryColor,
-          appBar: AppBar(
-            backgroundColor: AppColor.white,
-            title: brandName(),
-            centerTitle: true,
-            elevation: 0.0,
-            actions: [
-              IconButton(onPressed: (){
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => SearchScreen()));
-              }, icon: const Icon(Icons.search,color: AppColor.mainColor,))
-            ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor,
+      appBar: AppBar(
+        backgroundColor: AppColor.white,
+        title: brandName(),
+        centerTitle: true,
+        elevation: 0.0,
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const VideoSearchScreen()));
+          }, icon: const Icon(Icons.search,color: AppColor.mainColor,)),
+          Consumer<VideoHomeProvider>(
+            builder: (context,videoProvider,child){
+              return PopupMenuButton<int>(
+                icon: const Icon(Icons.more_vert,color: AppColor.mainColor),
+                onSelected: (item) => videoProvider.handleClick(item, context),
+                itemBuilder: (context) => [
+                  PopupMenuItem<int>(value: 0, child: Row(
+                    children: const[
+                      Icon(Icons.photo,color: AppColor.mainColor,),
+                      SizedBox(width: 10,),
+                      Text('Photos',style: TextStyle(color: AppColor.mainColor,fontWeight: FontWeight.bold),),
+                    ],
+                  )),
+                  PopupMenuItem<int>(value: 1, child: Row(
+                    children: const[
+                      Icon(Icons.slow_motion_video,color: AppColor.mainColor,),
+                      SizedBox(width: 10,),
+                      Text('Video',style: TextStyle(color: AppColor.mainColor,fontWeight: FontWeight.bold),),
+                    ],
+                  )),
+                ],
+              );
+            },
           ),
-          body:  Consumer<HomeProvider>(
-            builder: (context,home,child){
-              return Column(
-                children: [
-                 /* Consumer<SearchProvider>(
+
+        ],
+
+      ),
+      body:  Consumer<HomeProvider>(
+        builder: (context,home,child){
+          return Column(
+            children: [
+              /* Consumer<SearchProvider>(
                     builder: (context, search, child) {
                       return SizedBox(
                         height: 45,
@@ -122,72 +143,70 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),*/
-                  SizedBox(
-                    height: 65,
-                    child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        itemCount: categories.length,
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return CategoriesTile(
-                              imgUrl: categories[index].categoriesImageURL,
-                              title: categories[index].categoriesName);
-                        }),
-                  ),
-                  Expanded(
-                    child: NotificationListener<UserScrollNotification>(
-                      onNotification: (scrollInfo) {
-                        if(scrollInfo.direction == ScrollDirection.forward){
-                          setState(() {
-                            isFabVisible=true;
-                          });
-                        }
-                        else if(scrollInfo.direction==ScrollDirection.reverse){
-                          setState(() {
-                            isFabVisible=false;
-                          });
-                        }
+              SizedBox(
+                height: 65,
+                child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: categories.length,
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return CategoriesTile(
+                          imgUrl: categories[index].categoriesImageURL,
+                          title: categories[index].categoriesName);
+                    }),
+              ),
+              Expanded(
+                child: NotificationListener<UserScrollNotification>(
+                  onNotification: (scrollInfo) {
+                    if(scrollInfo.direction == ScrollDirection.forward){
+                      setState(() {
+                        isFabVisible=true;
+                      });
+                    }
+                    else if(scrollInfo.direction==ScrollDirection.reverse){
+                      setState(() {
+                        isFabVisible=false;
+                      });
+                    }
 
-                        if (!home.isLoading &&
-                            scrollInfo.metrics.pixels ==
-                                scrollInfo.metrics.maxScrollExtent) {
-                          home.loadData(context);
-                          home.setIsLoading(true);
-                        }
+                    if (!home.isLoading &&
+                        scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent) {
+                      home.loadData(context);
+                      home.setIsLoading(true);
+                    }
 
-                        return true;
-                      },
-                      child: wallpapersList(home.wallpaperList, context,home.scrollController),
-                    ),
-                  ),
-                  Visibility(
-                    visible: home.isLoading,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height  * 0.05,
-                        child: Lottie.asset(AppLottie.loading,height: MediaQuery.of(context).size.height  * 0.05,width: 100),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-          floatingActionButton: Consumer<HomeProvider>(
-            builder: (context,home,child){
-              return Visibility(
-                visible: isFabVisible,
-                child: FloatingActionButton(
-                  backgroundColor: AppColor.mainColor,
-                  onPressed: home.scrollUp,
-                  child: const Icon(Icons.arrow_upward,color: AppColor.white,),
+                    return true;
+                  },
+                  child: wallpapersList(home.wallpaperList, context,home.scrollController),
                 ),
-              );
-            },
-          ),
-        ),
+              ),
+              Visibility(
+                visible: home.isLoading,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height  * 0.05,
+                    child: Lottie.asset(AppLottie.loading,height: MediaQuery.of(context).size.height  * 0.05,width: 100),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      floatingActionButton: Consumer<HomeProvider>(
+        builder: (context,home,child){
+          return Visibility(
+            visible: isFabVisible,
+            child: FloatingActionButton(
+              backgroundColor: AppColor.mainColor,
+              onPressed: home.scrollUp,
+              child: const Icon(Icons.arrow_upward,color: AppColor.white,),
+            ),
+          );
+        },
       ),
     );
   }
@@ -212,8 +231,8 @@ class CategoriesTile extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => CategoriesScreen(
-                            categoriesTitle: title,
-                          )));
+                        categoriesTitle: title,
+                      )));
             },
             child: Stack(
               children: [
