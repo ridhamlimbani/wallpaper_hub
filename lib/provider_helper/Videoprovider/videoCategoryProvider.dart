@@ -1,26 +1,33 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:wallpaper_hub1/Model/VideoFilterModel.dart';
 import 'package:wallpaper_hub1/Model/Video_Search_Model.dart';
 import 'package:wallpaper_hub1/Model/VideopictureModel.dart';
+import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
+import 'package:http/http.dart' as http;
 import 'package:wallpaper_hub1/utils/string.dart';
-import 'package:wallpaper_hub1/view/Image/homeScreen.dart';
-import 'package:wallpaper_hub1/view/Video/videoHomeScreen.dart';
 
-class VideoHomeProvider extends ChangeNotifier{
-
+class VideoCategoryProvider extends ChangeNotifier{
   final List<VideoSearchModel> _wallpaperList = [];
+
   final List<VideoFilterModel> _videoFilterList = [];
+
   final List<VideoPictureModel> _videoPictureList = [];
+
   int _page = 1;
+
   final int _limit = 16;
+
   bool _isLoading = false;
-  ScrollController _scrollController=ScrollController();
+
+  final ScrollController _scrollController=ScrollController();
 
   List<VideoSearchModel> get wallpaperList => _wallpaperList;
+
   List<VideoFilterModel> get videoFilterList => _videoFilterList;
+
   List<VideoPictureModel> get videoPictureList => _videoPictureList;
 
   int get page => _page;
@@ -29,7 +36,7 @@ class VideoHomeProvider extends ChangeNotifier{
 
   bool get isLoading => _isLoading;
 
-  ScrollController get scrollController => _scrollController;
+  ScrollController get scrollController=> _scrollController;
 
   void setIsLoading(bool isValue){
     _isLoading = isValue;
@@ -37,30 +44,19 @@ class VideoHomeProvider extends ChangeNotifier{
   }
 
   void scrollUp(){
-    const double start=0;
+    final double start=0;
 
     _scrollController.animateTo(start, duration: const Duration(seconds: 1), curve: Curves.easeIn);
   }
 
-  void handleClick(int item,BuildContext context) {
-    switch (item) {
-      case 0:
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const HomeScreen()));
-        break;
-      case 1:
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const VideoHomeScreen()));
-        break;
-    }
-  }
-
-  Future loadData(BuildContext context)async{
+  Future loadData(BuildContext context,String query)async{
     await Future.delayed(const Duration(seconds: 2));
 
     print("Load More Data ...........");
     _page +=1;
 
     try{
-      var response = await http.get(Uri.parse("https://api.pexels.com/videos/popular?per_page=$_limit"),
+      var response = await http.get(Uri.parse("https://api.pexels.com/videos/search?query=$query&per_page=$limit"),
           headers: {
             "Authorization":AppString.apikey,
           });
@@ -96,11 +92,11 @@ class VideoHomeProvider extends ChangeNotifier{
 
   }
 
-  getCategoriesWallpapers() async {
+  getCategoriesWallpapers(String query) async {
     _wallpaperList.clear();
     var response = await http.get(
         Uri.parse(
-            "https://api.pexels.com/videos/popular?per_page=$_limit"),
+            "https://api.pexels.com/videos/search?query=$query&per_page=$limit"),
         headers: {
           "Authorization": AppString.apikey,
         });
@@ -127,5 +123,4 @@ class VideoHomeProvider extends ChangeNotifier{
       });
     }
   }
-
 }

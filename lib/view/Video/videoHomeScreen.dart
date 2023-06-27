@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wallpaper_hub1/Model/categoeries_Model.dart';
 import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/data/data.dart';
+import 'package:wallpaper_hub1/provider_helper/Videoprovider/videoCategoryProvider.dart';
 import 'package:wallpaper_hub1/provider_helper/Videoprovider/videoProvider.dart';
 import 'package:wallpaper_hub1/provider_helper/categorieProvider.dart';
 import 'package:wallpaper_hub1/provider_helper/home_provider.dart';
@@ -13,6 +14,7 @@ import 'package:wallpaper_hub1/utils/images.dart';
 import 'package:wallpaper_hub1/view/Image/categories.dart';
 import 'package:wallpaper_hub1/view/Image/search.dart';
 import 'package:wallpaper_hub1/view/Video/VideoSearchScreen.dart';
+import 'package:wallpaper_hub1/view/Video/videoCategoryScreen.dart';
 
 import '../../widgets/widget.dart';
 
@@ -31,7 +33,7 @@ class _VideoHomeScreenState extends State<VideoHomeScreen> {
   bool isFabVisible = true;
 
   loadData() {
-    homeGetData = Provider.of<HomeProvider>(context, listen: false);
+    homeGetData = Provider.of<VideoHomeProvider>(context, listen: false);
     homeGetData.getCategoriesWallpapers();
   }
 
@@ -88,8 +90,8 @@ class _VideoHomeScreenState extends State<VideoHomeScreen> {
         ],
 
       ),
-      body:  Consumer<HomeProvider>(
-        builder: (context,home,child){
+      body:  Consumer<VideoHomeProvider>(
+        builder: (context,videoHomeProvider,child){
           return Column(
             children: [
               /* Consumer<SearchProvider>(
@@ -170,20 +172,20 @@ class _VideoHomeScreenState extends State<VideoHomeScreen> {
                       });
                     }
 
-                    if (!home.isLoading &&
+                    if (!videoHomeProvider.isLoading &&
                         scrollInfo.metrics.pixels ==
                             scrollInfo.metrics.maxScrollExtent) {
-                      home.loadData(context);
-                      home.setIsLoading(true);
+                      videoHomeProvider.loadData(context);
+                      videoHomeProvider.setIsLoading(true);
                     }
 
                     return true;
                   },
-                  child: wallpapersList(home.wallpaperList, context,home.scrollController),
+                  child: videoWallpapersList(videoHomeProvider.wallpaperList, context,videoHomeProvider.scrollController),
                 ),
               ),
               Visibility(
-                visible: home.isLoading,
+                visible: videoHomeProvider.isLoading,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
@@ -222,7 +224,7 @@ class CategoriesTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(right: 4),
-      child: Consumer<CategoriesProvider>(
+      child: Consumer<VideoCategoryProvider>(
         builder: (context, categories, child) {
           return InkWell(
             onTap: () {
@@ -230,7 +232,7 @@ class CategoriesTile extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CategoriesScreen(
+                      builder: (context) => VideoCategoryScreen(
                         categoriesTitle: title,
                       )));
             },

@@ -6,19 +6,29 @@ import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/utils/string.dart';
 import 'package:wallpaper_hub1/view/Image/homeScreen.dart';
 import 'package:wallpaper_hub1/view/Video/videoHomeScreen.dart';
+import 'package:wallpaper_hub1/view/WelComeScreen/PhotoWelcomeScreen.dart';
+import 'package:wallpaper_hub1/view/WelComeScreen/VideoWelComeScreen.dart';
 
 class HomeProvider extends ChangeNotifier{
-  List<WallpaperModel> _wallpaperList = [];
+  final List<WallpaperModel> _wallpaperList = [];
+
   int _page = 1;
+
   final int _limit = 16;
+
   bool _isLoading = false;
-  ScrollController _scrollController=ScrollController();
+
+  bool _isFabVisible = true;
+
+  final ScrollController _scrollController=ScrollController();
 
   List<WallpaperModel> get wallpaperList => _wallpaperList;
 
   int get page => _page;
 
   int get limit => _limit;
+
+  bool get isFabVisible => _isFabVisible;
 
   bool get isLoading => _isLoading;
 
@@ -28,6 +38,12 @@ class HomeProvider extends ChangeNotifier{
     _isLoading = isValue;
     notifyListeners();
   }
+
+  void setVisible(bool isValue){
+     _isFabVisible = isValue;
+    notifyListeners();
+  }
+
   void scrollUp(){
     const double start=0;
 
@@ -37,10 +53,10 @@ class HomeProvider extends ChangeNotifier{
   void handleClick(int item,BuildContext context) {
     switch (item) {
       case 0:
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const HomeScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const PhotoWelComeScreen()));
         break;
       case 1:
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const VideoHomeScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const VideoWelComeScreen()));
         break;
     }
   }

@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:lottie/lottie.dart';
@@ -9,14 +7,11 @@ import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:wallpaper_hub1/data/data.dart';
 import 'package:wallpaper_hub1/provider_helper/categorieProvider.dart';
 import 'package:wallpaper_hub1/provider_helper/home_provider.dart';
-import 'package:wallpaper_hub1/provider_helper/search_provider.dart';
 import 'package:wallpaper_hub1/utils/colors.dart';
 import 'package:wallpaper_hub1/utils/images.dart';
-import 'package:wallpaper_hub1/utils/string.dart';
 import 'package:wallpaper_hub1/view/Image/categories.dart';
 import 'package:wallpaper_hub1/view/Image/search.dart';
 import 'package:wallpaper_hub1/widgets/widget.dart';
-import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -97,57 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context,home,child){
               return Column(
                 children: [
-                 /* Consumer<SearchProvider>(
-                    builder: (context, search, child) {
-                      return SizedBox(
-                        height: 45,
-                        child: TextField(
-                          enableSuggestions: true,
-                          autocorrect: true,
-                          onSubmitted: (String searchString) {
-                            search.getSearchWallpapers(searchString);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SearchScreen(
-                                        searchTitle: searchString)));
-                          },
-                          cursorColor: AppColor.mainColor,
-                          style: const TextStyle(
-                              fontFamily: "Fontmirror",
-                              color: AppColor.mainColor,
-                              decorationThickness: 0),
-                          controller: search.searchController,
-                          decoration: InputDecoration(
-                              hintText: "Search Categories",
-                              hintStyle: const TextStyle(
-                                  fontFamily: "Fontmirror",
-                                  color: AppColor.mainColor),
-                              contentPadding:
-                              const EdgeInsets.only(left: 20),
-                              suffixIcon: const Icon(
-                                Icons.search,
-                                color: AppColor.mainColor,
-                              ),
-                              filled: true,
-                              fillColor:
-                              AppColor.mainColor.withOpacity(0.1),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  borderSide: const BorderSide(
-                                      color: AppColor.mainColor)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  borderSide: const BorderSide(
-                                      color: AppColor.mainColor)),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide.none,
-                              )),
-                        ),
-                      );
-                    },
-                  ),*/
                   SizedBox(
                     height: 65,
                     child: ListView.builder(
@@ -165,14 +109,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: NotificationListener<UserScrollNotification>(
                       onNotification: (scrollInfo) {
                         if(scrollInfo.direction == ScrollDirection.forward){
-                          setState(() {
-                            isFabVisible=true;
-                          });
+                          home.setVisible(true);
                         }
                         else if(scrollInfo.direction==ScrollDirection.reverse){
-                          setState(() {
-                            isFabVisible=false;
-                          });
+                          home.setVisible(false);
                         }
 
                         if (!home.isLoading &&
@@ -204,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
           floatingActionButton: Consumer<HomeProvider>(
             builder: (context,home,child){
               return Visibility(
-                visible: isFabVisible,
+                visible: home.isFabVisible,
                 child: FloatingActionButton(
                   backgroundColor: AppColor.mainColor,
                   onPressed: home.scrollUp,
