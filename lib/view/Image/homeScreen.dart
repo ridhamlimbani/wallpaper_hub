@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(
                         builder: (context) => SearchScreen()));
               }, icon: const Icon(Icons.search,color: AppColor.mainColor,)),
-              Consumer<HomeProvider>(
+              /*Consumer<HomeProvider>(
                 builder: (context,homeProvider,child){
                   return PopupMenuButton<int>(
                     icon: const Icon(Icons.more_vert,color: AppColor.mainColor),
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   );
                 },
-              ),
+              ),*/
             ],
 
           ),

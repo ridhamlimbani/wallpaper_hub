@@ -7,6 +7,7 @@ import 'package:wallpaper_hub1/Model/Video_Search_Model.dart';
 import 'package:wallpaper_hub1/Model/VideopictureModel.dart';
 import 'package:wallpaper_hub1/Model/wallpaper_Model.dart';
 import 'package:http/http.dart' as http;
+import 'package:wallpaper_hub1/utils/progessBar.dart';
 import 'package:wallpaper_hub1/utils/string.dart';
 
 class VideoCategoryProvider extends ChangeNotifier{
@@ -15,6 +16,7 @@ class VideoCategoryProvider extends ChangeNotifier{
   final List<VideoFilterModel> _videoFilterList = [];
 
   final List<VideoPictureModel> _videoPictureList = [];
+
 
   int _page = 1;
 
@@ -29,6 +31,8 @@ class VideoCategoryProvider extends ChangeNotifier{
   List<VideoFilterModel> get videoFilterList => _videoFilterList;
 
   List<VideoPictureModel> get videoPictureList => _videoPictureList;
+
+  final ProgressBar _progressBar=ProgressBar();
 
   int get page => _page;
 
@@ -50,12 +54,15 @@ class VideoCategoryProvider extends ChangeNotifier{
   }
 
   Future loadData(BuildContext context,String query)async{
+    _progressBar.show(context);
     await Future.delayed(const Duration(seconds: 2));
 
     print("Load More Data ...........");
     _page +=1;
 
     try{
+      print("data");
+
       var response = await http.get(Uri.parse("https://api.pexels.com/videos/search?query=$query&per_page=$limit"),
           headers: {
             "Authorization":AppString.apikey,
@@ -83,6 +90,7 @@ class VideoCategoryProvider extends ChangeNotifier{
           notifyListeners();
         });
       }
+      _progressBar.hide(context);
 
     }catch(error){
       if(kDebugMode){
@@ -92,8 +100,9 @@ class VideoCategoryProvider extends ChangeNotifier{
 
   }
 
-  getCategoriesWallpapers(String query) async {
+  getCategoriesWallpapers(String query,BuildContext context) async {
     _wallpaperList.clear();
+    _progressBar.show(context);
     var response = await http.get(
         Uri.parse(
             "https://api.pexels.com/videos/search?query=$query&per_page=$limit"),
@@ -122,5 +131,6 @@ class VideoCategoryProvider extends ChangeNotifier{
         notifyListeners();
       });
     }
+    _progressBar.hide(context);
   }
 }

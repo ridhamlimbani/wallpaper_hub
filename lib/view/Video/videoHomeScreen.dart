@@ -11,6 +11,7 @@ import 'package:wallpaper_hub1/provider_helper/categorieProvider.dart';
 import 'package:wallpaper_hub1/provider_helper/home_provider.dart';
 import 'package:wallpaper_hub1/utils/colors.dart';
 import 'package:wallpaper_hub1/utils/images.dart';
+import 'package:wallpaper_hub1/utils/progessBar.dart';
 import 'package:wallpaper_hub1/view/Image/categories.dart';
 import 'package:wallpaper_hub1/view/Image/search.dart';
 import 'package:wallpaper_hub1/view/Video/VideoSearchScreen.dart';
@@ -222,13 +223,14 @@ class CategoriesTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       margin: const EdgeInsets.only(right: 4),
       child: Consumer<VideoCategoryProvider>(
         builder: (context, categories, child) {
           return InkWell(
             onTap: () {
-              categories.getCategoriesWallpapers(title);
+              categories.getCategoriesWallpapers(title,context);
               Navigator.push(
                   context,
                   MaterialPageRoute(

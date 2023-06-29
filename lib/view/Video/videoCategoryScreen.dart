@@ -34,7 +34,7 @@ class _VideoCategoryScreenState extends State<VideoCategoryScreen> {
             elevation: 0.0,
             centerTitle: true,
             title: Text(
-              "k",
+              widget.categoriesTitle,
               style: const TextStyle(
                   color: AppColor.purple,
                   fontWeight: FontWeight.bold,
